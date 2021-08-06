@@ -2,6 +2,20 @@ data "oci_identity_availability_domains" "ads" {
   compartment_id = var.compartment_id
 }
 
+resource "oci_core_public_ip" "public_ip" {
+    count = var.reserve_public_ip ? 1 : 0
+    compartment_id = var.compartment_id
+    lifetime = "RESERVED"
+    display_name = var.reserved_public_ip_name
+
+    private_ip_id  = data.oci_core_private_ips.instance_private_ip.private_ips[0]["id"]
+}
+
+data "oci_core_private_ips" "instance_private_ip" {
+  ip_address = oci_core_instance.oci-instance.private_ip
+  subnet_id  = var.subnet_id
+}
+
 resource "oci_core_instance" "oci-instance" {
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name
   compartment_id      = var.compartment_id
@@ -24,9 +38,10 @@ resource "oci_core_instance" "oci-instance" {
   metadata = {
     ssh_authorized_keys = "${file(var.ssh_key_public)}"
   }
-
-  connection {
-      host        = "${self.public_ip}"
+}
+resource "null_resource" "remote-exec" {
+ connection {
+      host        = oci_core_instance.oci-instance.public_ip
       type        = "ssh"
       user        = var.ssh_user
       private_key = "${file(var.ssh_key_private)}"
@@ -34,5 +49,5 @@ resource "oci_core_instance" "oci-instance" {
   provisioner "remote-exec" {
     inline = var.remote_exec_command
     }
-}
-
+  
+  }

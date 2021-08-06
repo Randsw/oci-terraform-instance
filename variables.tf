@@ -63,3 +63,12 @@ variable "app_tags" {
 variable "subnet_id" {
     type = string  
 }
+
+variable "reserve_public_ip" {
+    type = bool
+}
+
+variable "reserved_public_ip_name" {
+    type = string
+    description = "Display name for reserved public ip resource"
+}
