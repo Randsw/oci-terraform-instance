@@ -72,3 +72,11 @@ variable "reserved_public_ip_name" {
     type = string
     description = "Display name for reserved public ip resource"
 }
+
+variable "skip_source_dest_check"{
+    type = bool
+}
+
+variable "cloud-init" {
+    type = string
+}

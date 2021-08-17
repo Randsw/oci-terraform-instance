@@ -24,10 +24,11 @@ resource "oci_core_instance" "oci-instance" {
   freeform_tags       = var.app_tags
 
   create_vnic_details {
-    subnet_id        = var.subnet_id
-    display_name     = var.vnic_name
-    assign_public_ip = var.assign_public_ip
-    hostname_label   = var.hostname_label
+    subnet_id              = var.subnet_id
+    display_name           = var.vnic_name
+    assign_public_ip       = var.assign_public_ip
+    hostname_label         = var.hostname_label
+    skip_source_dest_check = var.skip_source_dest_check
   }
 
   source_details {
@@ -37,6 +38,7 @@ resource "oci_core_instance" "oci-instance" {
 
   metadata = {
     ssh_authorized_keys = "${file(var.ssh_key_public)}"
+    user_data = "${base64encode(var.cloud-init)}"
   }
 }
 resource "null_resource" "remote-exec" {
